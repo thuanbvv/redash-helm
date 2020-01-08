@@ -78,39 +78,27 @@ spec:
         run: {{ .Values.redash.workerName }}
     spec:
       containers:
-      - name: scheduler
+      - name: server
         resources:
 {{ toYaml .Values.redash.workerResources | indent 10 }} 
         envFrom:
 {{ toYaml .Values.redash.envFrom | indent 8 }} 
         env:
-        - name: QUEUES
-          value: celery
-        - name: WORKERS_COUNT
-          value: "1"
+          - name: WORKERS_COUNT
+            value: "1"
+          - name: REDASH_COOKIE_SECRET
+            value: keepitsecretkeepitsafe
         image: {{ .Values.redash.image }}
-        args: ["scheduler"]
-      - name: scheduled-worker
+        args: ["server"]
+      - name: workers
         resources:
 {{ toYaml .Values.redash.workerResources | indent 10 }} 
         envFrom:
 {{ toYaml .Values.redash.envFrom | indent 8 }} 
         env:
         - name: QUEUES
-          value: scheduled_queries
-        - name: WORKERS_COUNT
-          value: "1"
-        image: {{ .Values.redash.image }}
-        args: ["worker"]
-      - name: adhoc-worker
-        resources:
-{{ toYaml .Values.redash.workerResources | indent 10 }} 
-        envFrom:
-{{ toYaml .Values.redash.envFrom | indent 8 }} 
-        env:
-        - name: QUEUES
-          value: queries
+          value: "queries,scheduled_queries,celery"
         - name: WORKERS_COUNT
           value: "2"
         image: {{ .Values.redash.image }}
-        args: ["worker"]
+        args: ["scheduler"]
