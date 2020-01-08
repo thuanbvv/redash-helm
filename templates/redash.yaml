@@ -42,6 +42,7 @@ spec:
 {{ toYaml .Values.redash.envFrom | indent 8 }}
       containers:
       - name: {{ .Values.redash.name }}
+        args: ["server"]
         resources:
           limits:
             cpu: 500m
@@ -52,6 +53,11 @@ spec:
         envFrom:
         - configMapRef:
             name: env
+        env:
+          - name: WORKERS_COUNT
+            value: "1"
+          - name: REDASH_COOKIE_SECRET
+            value: keepitsecretkeepitsafe
         image: {{ .Values.redash.image }}
         ports:
         - containerPort: {{ .Values.redash.port }}
@@ -78,27 +84,15 @@ spec:
         run: {{ .Values.redash.workerName }}
     spec:
       containers:
-      - name: server
-        resources:
-{{ toYaml .Values.redash.workerResources | indent 10 }} 
-        envFrom:
-{{ toYaml .Values.redash.envFrom | indent 8 }} 
-        env:
-          - name: WORKERS_COUNT
-            value: "1"
-          - name: REDASH_COOKIE_SECRET
-            value: keepitsecretkeepitsafe
-        image: {{ .Values.redash.image }}
-        args: ["server"]
       - name: workers
         resources:
 {{ toYaml .Values.redash.workerResources | indent 10 }} 
         envFrom:
 {{ toYaml .Values.redash.envFrom | indent 8 }} 
         env:
-        - name: QUEUES
-          value: "queries,scheduled_queries,celery"
-        - name: WORKERS_COUNT
-          value: "2"
+          - name: QUEUES
+            value: "queries,scheduled_queries,celery"
+          - name: WORKERS_COUNT
+            value: "2"
         image: {{ .Values.redash.image }}
         args: ["scheduler"]
