@@ -1,6 +1,6 @@
 postgres:
   name: postgres
-  image: postgres:9.5.6-alpine
+  image: postgres:9.6-alpine
   port: 5432
   targetPort: 5432
   db: postgres
