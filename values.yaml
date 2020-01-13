@@ -14,10 +14,7 @@ redis:
 
 redash:
   name: redash
-  image: 
-    pullPolicy: "Always"
-    repository: "redash/redash"
-    tag: "lastest"
+  image: redash/redash:8.0.1.b33387
   envFrom:
   - configMapRef:
       name: env

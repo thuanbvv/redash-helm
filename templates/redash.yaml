@@ -32,10 +32,7 @@ spec:
     spec:
       initContainers:
       - name: create-db
-        image: 
-          pullPolicy: {{ .Values.redash.image.pullPolicy }}
-          repository: {{ .Values.redash.image.repository }}
-          tag: {{ .Values.redash.image.tag }}
+        image: {{ .Values.redash.image }}
         args: ["create_db"]
         securityContext:
           privileged: true
