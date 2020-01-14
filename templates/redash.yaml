@@ -41,6 +41,21 @@ spec:
         envFrom:
 {{ toYaml .Values.redash.envFrom | indent 8 }}
       containers:
+      - name: workers
+        resources:
+{{ toYaml .Values.redash.workerResources | indent 10 }} 
+        envFrom:
+{{ toYaml .Values.redash.envFrom | indent 8 }} 
+        env:
+          - name: QUEUES
+            value: "queries,scheduled_queries,celery"
+          - name: WORKERS_COUNT
+            value: "2"
+        image: {{ .Values.redash.image }}
+        command:
+          - /bin/sh
+          - -c
+          - /app/bin/docker-entrypoint scheduler; tail -f /dev/null
       - name: {{ .Values.redash.name }}
         command:
           - /bin/sh
@@ -69,36 +84,3 @@ spec:
           mountPath: {{ .Values.commonVolume.mountPathForRedash }} 
       volumes:
 {{ toYaml .Values.commonVolume.volumes | indent 6 }}  
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ .Values.redash.workerName }}
-  labels:
-    app: {{ .Values.redash.workerName }}
-spec:
-  selector:
-    matchLabels:
-      run: {{ .Values.redash.workerName }}
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        run: {{ .Values.redash.workerName }}
-    spec:
-      containers:
-      - name: workers
-        resources:
-{{ toYaml .Values.redash.workerResources | indent 10 }} 
-        envFrom:
-{{ toYaml .Values.redash.envFrom | indent 8 }} 
-        env:
-          - name: QUEUES
-            value: "queries,scheduled_queries,celery"
-          - name: WORKERS_COUNT
-            value: "2"
-        image: {{ .Values.redash.image }}
-        command:
-          - /bin/sh
-          - -c
-          - /app/bin/docker-entrypoint scheduler; tail -f /dev/null
