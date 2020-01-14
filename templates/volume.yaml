@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ .Values.commonVolume.name }}
 spec:
-  # storageClassName: fast
+  storageClassName: fast
   accessModes: [ReadWriteOnce]
   resources:
     requests:
