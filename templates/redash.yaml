@@ -43,7 +43,7 @@ spec:
       containers:
       - name: {{ .Values.redash.name }}
         command: ["/bin/sh"]
-        args: ["-c", ". /config/dynamicenv.sh && /app/bin/docker-entrypoint server"]
+        args: ["-c", "/app/bin/docker-entrypoint server"]
         # resources:
         #   limits:
         #     cpu: 500m
