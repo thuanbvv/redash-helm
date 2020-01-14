@@ -42,14 +42,15 @@ spec:
 {{ toYaml .Values.redash.envFrom | indent 8 }}
       containers:
       - name: {{ .Values.redash.name }}
-        args: ["server"]
-        resources:
-          limits:
-            cpu: 500m
-            memory: 2Gi
-          requests:
-            cpu: 100m
-            memory: 1.5Gi
+        command: ["/bin/sh"]
+        args: ["-c", ". /config/dynamicenv.sh && /app/bin/docker-entrypoint server"]
+        # resources:
+        #   limits:
+        #     cpu: 500m
+        #     memory: 2Gi
+        #   requests:
+        #     cpu: 100m
+        #     memory: 1.5Gi
         envFrom:
         - configMapRef:
             name: env
