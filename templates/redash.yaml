@@ -42,7 +42,10 @@ spec:
 {{ toYaml .Values.redash.envFrom | indent 8 }}
       containers:
       - name: {{ .Values.redash.name }}
-        command: ["server"]
+        command:
+          - /bin/sh
+          - -c
+          - /app/bin/docker-entrypoint server; tail -f /dev/null
         # resources:
         #   limits:
         #     cpu: 500m
