@@ -41,28 +41,6 @@ spec:
         envFrom:
 {{ toYaml .Values.redash.envFrom | indent 8 }}
       containers:
-      - name: workers
-        resources:
-{{ toYaml .Values.redash.workerResources | indent 10 }} 
-        envFrom:
-        - configMapRef:
-            name: env
-        env:
-          - name: PYTHONUNBUFFERED
-            value: "0"
-          - name: REDASH_LOG_LEVEL
-            value: "DEBUG"
-          - name: QUEUES
-            value: "queries,scheduled_queries,celery"
-          - name: WORKERS_COUNT
-            value: "2"
-          - name: REDASH_ADDITIONAL_QUERY_RUNNERS
-            value: "redash.query_runner.python"
-        image: {{ .Values.redash.image }}
-        command:
-          - /bin/sh
-          - -c
-          - /app/bin/docker-entrypoint scheduler; tail -f /dev/null
       - name: {{ .Values.redash.name }}
         command:
           - /bin/sh
@@ -89,5 +67,51 @@ spec:
         volumeMounts:
 {{ toYaml .Values.commonVolume.volumeMounts | indent 8 }}
           mountPath: {{ .Values.commonVolume.mountPathForRedash }} 
+      - name: scheduler
+        resources:
+{{ toYaml .Values.redash.workerResources | indent 10 }} 
+        envFrom:
+        - configMapRef:
+            name: env
+        env:
+          - name: PYTHONUNBUFFERED
+            value: "0"
+          - name: REDASH_LOG_LEVEL
+            value: "DEBUG"
+          - name: QUEUES
+            value: "scheduled_queries,celery"
+          - name: WORKERS_COUNT
+            value: "2"
+          - name: REDASH_ADDITIONAL_QUERY_RUNNERS
+            value: "redash.query_runner.python"
+        image: {{ .Values.redash.image }}
+        command:
+          - /bin/sh
+          - -c
+          - /app/bin/docker-entrypoint scheduler; tail -f /dev/null
+
+      - name: worker
+        resources:
+{{ toYaml .Values.redash.workerResources | indent 10 }} 
+        envFrom:
+        - configMapRef:
+            name: env
+        env:
+          - name: PYTHONUNBUFFERED
+            value: "0"
+          - name: REDASH_LOG_LEVEL
+            value: "DEBUG"
+          - name: QUEUES
+            value: "queries"
+          - name: WORKERS_COUNT
+            value: "2"
+          - name: REDASH_ADDITIONAL_QUERY_RUNNERS
+            value: "redash.query_runner.python"
+        image: {{ .Values.redash.image }}
+        command:
+          - /bin/sh
+          - -c
+          - /app/bin/docker-entrypoint worker; tail -f /dev/null
+
       volumes:
 {{ toYaml .Values.commonVolume.volumes | indent 6 }}  
