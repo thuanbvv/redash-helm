@@ -45,12 +45,19 @@ spec:
         resources:
 {{ toYaml .Values.redash.workerResources | indent 10 }} 
         envFrom:
-{{ toYaml .Values.redash.envFrom | indent 8 }} 
+        - configMapRef:
+            name: env
         env:
+          - name: PYTHONUNBUFFERED
+            value: "0"
+          - name: REDASH_LOG_LEVEL
+            value: "DEBUG"
           - name: QUEUES
             value: "queries,scheduled_queries,celery"
           - name: WORKERS_COUNT
             value: "2"
+          - name: REDASH_ADDITIONAL_QUERY_RUNNERS
+            value: "redash.query_runner.python"
         image: {{ .Values.redash.image }}
         command:
           - /bin/sh
